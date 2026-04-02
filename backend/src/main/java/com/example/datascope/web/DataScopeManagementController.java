@@ -17,6 +17,7 @@ import com.example.datascope.web.request.ResolvePreviewRequest;
 import com.example.datascope.web.request.UserOverrideRuleRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,6 +50,7 @@ public class DataScopeManagementController {
         this.userRepository = userRepository;
     }
 
+    // 页面、默认规则、个人覆盖都放在这个控制器下，前端可以把它当成“规则配置台”的后端接口。
     @GetMapping("/pages")
     public List<PageConfig> pageConfigs() {
         return pageConfigService.findAll();
@@ -81,6 +83,11 @@ public class DataScopeManagementController {
         return defaultRuleService.update(id, request);
     }
 
+    @DeleteMapping("/default-rules/{id}")
+    public void deleteDefaultRule(@PathVariable Long id) {
+        defaultRuleService.delete(id);
+    }
+
     @GetMapping("/user-rules")
     public List<UserOverrideRule> userRules(@RequestParam(required = false) String userId,
                                             @RequestParam(required = false) String pageCode,
@@ -96,6 +103,11 @@ public class DataScopeManagementController {
     @PutMapping("/user-rules/{id}")
     public UserOverrideRule updateUserRule(@PathVariable Long id, @Validated @RequestBody UserOverrideRuleRequest request) {
         return userOverrideRuleService.update(id, request);
+    }
+
+    @DeleteMapping("/user-rules/{id}")
+    public void deleteUserRule(@PathVariable Long id) {
+        userOverrideRuleService.delete(id);
     }
 
     @PostMapping("/resolve-preview")

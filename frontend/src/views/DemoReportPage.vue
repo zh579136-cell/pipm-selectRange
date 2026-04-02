@@ -25,29 +25,44 @@
           <el-table :data="scope.matchedRoleRules || []" size="small" border>
             <el-table-column prop="roleCode" label="角色" min-width="120" />
             <el-table-column prop="ruleSource" label="规则来源" min-width="120" />
-            <el-table-column prop="scopeType" label="范围类型" min-width="160" />
+            <el-table-column label="命中规则档位" min-width="140">
+              <template slot-scope="{ row }">{{ matchedLevelLabel(row) }}</template>
+            </el-table-column>
+            <el-table-column label="范围类型" min-width="160">
+              <template slot-scope="{ row }">{{ scopeTypeLabel(row.scopeType) }}</template>
+            </el-table-column>
+            <el-table-column label="根节点类型" min-width="140">
+              <template slot-scope="{ row }">{{ row.resolvedScopeLabel || '-' }}</template>
+            </el-table-column>
             <el-table-column prop="matchedBy" label="命中原因" min-width="160" />
-            <el-table-column prop="resolvedOrgName" label="锚点机构" min-width="160" />
+            <el-table-column label="命中根节点" min-width="220">
+              <template slot-scope="{ row }">
+                {{ formatResolvedOrg(row) }}
+                <div v-if="row.resolvedScopeNote" class="muted-text" style="font-size:12px; margin-top: 4px;">
+                  {{ row.resolvedScopeNote }}
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
         <div>
-          <div style="font-weight: 600; margin-bottom: 10px;">最终可见机构</div>
-          <div>
-            <span
-              v-for="root in scope.resolvedScopeRoots || []"
-              :key="`${root.orgId}-${root.matchMode}`"
-              class="code-chip"
+          <div style="font-weight: 600; margin-bottom: 10px;">最终可见机构树</div>
+          <div v-if="visibleOrgTreeData.length" style="border:1px solid rgba(15,23,42,0.08); border-radius: 14px; padding: 10px; background:#fbfdff;">
+            <el-tree
+              :data="visibleOrgTreeData"
+              node-key="orgId"
+              default-expand-all
+              :props="{ label: 'orgName', children: 'children' }"
             >
-              {{ root.orgName }} / {{ root.matchMode }}
-            </span>
-            <span v-if="scope.scopeMode === 'ALL'" class="code-chip">全行</span>
+              <span slot-scope="{ data }">
+                {{ data.orgName }}
+                <span class="muted-text" style="font-size:12px;">({{ data.orgId }})</span>
+              </span>
+            </el-tree>
           </div>
+          <div v-else class="muted-text">暂无可见机构</div>
           <div style="margin-top: 16px; font-weight: 600;">SQL 预览</div>
           <div class="sql-preview">{{ scope.sqlPreview || '暂无' }}</div>
-          <div style="margin-top: 16px; font-weight: 600;">可见机构 ID 预览</div>
-          <div>
-            <span v-for="orgId in scope.visibleOrgIdsPreview || []" :key="orgId" class="code-chip">{{ orgId }}</span>
-          </div>
         </div>
       </div>
     </div>
@@ -74,11 +89,45 @@
 
 <script>
 import { queryDemoReport } from '../api';
+import state from '../store/appState';
+
+function buildVisibleOrgTree(orgs, visibleOrgIds) {
+  const visibleSet = new Set(visibleOrgIds || []);
+  const sourceMap = new Map((orgs || []).map(org => [org.orgId, { ...org, children: [] }]));
+  const keepSet = new Set();
+
+  sourceMap.forEach(org => {
+    if (visibleSet.has(org.orgId)) {
+      let current = org;
+      while (current) {
+        keepSet.add(current.orgId);
+        current = current.parentOrgId ? sourceMap.get(current.parentOrgId) : null;
+      }
+    }
+  });
+
+  const keptMap = new Map();
+  keepSet.forEach(orgId => {
+    keptMap.set(orgId, { ...sourceMap.get(orgId), children: [] });
+  });
+
+  const roots = [];
+  keptMap.forEach(node => {
+    if (node.parentOrgId && keptMap.has(node.parentOrgId)) {
+      keptMap.get(node.parentOrgId).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  return roots;
+}
 
 export default {
   name: 'DemoReportPage',
   data() {
     return {
+      state,
       form: {
         customerName: '',
         metricName: ''
@@ -86,6 +135,11 @@ export default {
       scope: {},
       rows: []
     };
+  },
+  computed: {
+    visibleOrgTreeData() {
+      return buildVisibleOrgTree(this.state.options.orgs, this.scope.visibleOrgIdsPreview);
+    }
   },
   created() {
     this.loadData();
@@ -108,6 +162,38 @@ export default {
       this.form.customerName = '';
       this.form.metricName = '';
       this.loadData();
+    },
+    scopeTypeLabel(scopeType) {
+      const labelMap = {
+        CURRENT_ORG_ONLY: '仅当前机构',
+        FIRST_DEPT_AND_DESCENDANTS: '所属一级部门下',
+        OWNER_BANK_AND_DESCENDANTS: '所属行',
+        CURRENT_ORG_AND_DESCENDANTS: '当前机构下'
+      };
+      return labelMap[scopeType] || (scopeType || '个人覆盖根节点');
+    },
+    formatResolvedOrg(row) {
+      if (!row) {
+        return '-';
+      }
+      if (!row.resolvedOrgName) {
+        return '-';
+      }
+      return `${row.resolvedOrgName} (${row.resolvedOrgId})`;
+    },
+    matchedLevelLabel(row) {
+      if (row.ruleSource === 'USER_OVERRIDE') {
+        return `个人覆盖 / ${this.levelLabel(row.matchedUserOrgLevel)}`;
+      }
+      return this.levelLabel(row.matchedUserOrgLevel);
+    },
+    levelLabel(level) {
+      const labelMap = {
+        HEAD_OFFICE: '总行规则',
+        BRANCH: '分行规则',
+        SUB_BRANCH: '支行规则'
+      };
+      return labelMap[level] || (level || '-');
     }
   }
 };

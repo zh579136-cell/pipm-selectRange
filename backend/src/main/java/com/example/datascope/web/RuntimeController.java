@@ -5,6 +5,7 @@ import com.example.datascope.domain.UserOrgLevel;
 import com.example.datascope.model.DataScopeResult;
 import com.example.datascope.model.DemoUser;
 import com.example.datascope.model.RuntimeOptions;
+import com.example.datascope.repository.OrgRepository;
 import com.example.datascope.repository.RoleRepository;
 import com.example.datascope.service.CurrentUserResolver;
 import com.example.datascope.service.DataScopeResolveService;
@@ -25,15 +26,18 @@ public class RuntimeController {
     private final CurrentUserResolver currentUserResolver;
     private final DataScopeResolveService dataScopeResolveService;
     private final RoleRepository roleRepository;
+    private final OrgRepository orgRepository;
     private final PageConfigService pageConfigService;
 
     public RuntimeController(CurrentUserResolver currentUserResolver,
                              DataScopeResolveService dataScopeResolveService,
                              RoleRepository roleRepository,
+                             OrgRepository orgRepository,
                              PageConfigService pageConfigService) {
         this.currentUserResolver = currentUserResolver;
         this.dataScopeResolveService = dataScopeResolveService;
         this.roleRepository = roleRepository;
+        this.orgRepository = orgRepository;
         this.pageConfigService = pageConfigService;
     }
 
@@ -58,6 +62,7 @@ public class RuntimeController {
         RuntimeOptions options = new RuntimeOptions();
         options.setUsers(currentUserResolver.listAllUsers());
         options.setRoles(roleRepository.findAll());
+        options.setOrgs(orgRepository.findAll());
         options.setPageConfigs(pageConfigService.findAll());
 
         List<String> scopeTypes = new ArrayList<String>();

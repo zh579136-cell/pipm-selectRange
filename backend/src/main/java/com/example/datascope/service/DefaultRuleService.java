@@ -42,6 +42,14 @@ public class DefaultRuleService {
         return repository.findById(id);
     }
 
+    public void delete(Long id) {
+        DefaultRule exists = repository.findById(id);
+        if (exists == null) {
+            throw new BadRequestException("未找到默认规则: " + id);
+        }
+        repository.deleteById(id);
+    }
+
     private void validateUnique(DefaultRule rule, Long selfId) {
         List<DefaultRule> rules = repository.findByUniqueKey(rule.getPageCode(), rule.getRoleCode(), rule.getUserOrgLevel());
         String normalizedKeyword = normalize(rule.getJobKeyword());

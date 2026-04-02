@@ -55,7 +55,8 @@ create table ds_user_override_rule (
     user_id varchar(32) not null,
     page_code varchar(64) not null,
     role_code varchar(64) not null,
-    scope_type varchar(64) not null,
+    scope_type varchar(64),
+    custom_org_ids varchar(1000),
     enabled boolean not null
 );
 

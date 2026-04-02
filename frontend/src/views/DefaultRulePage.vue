@@ -85,7 +85,7 @@ const createEmptyForm = () => ({
   roleCode: '',
   userOrgLevel: '',
   jobKeyword: '',
-  scopeType: 'SELF_ONLY',
+  scopeType: 'CURRENT_ORG_ONLY',
   enabled: true
 });
 

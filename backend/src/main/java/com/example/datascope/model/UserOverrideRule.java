@@ -2,6 +2,9 @@ package com.example.datascope.model;
 
 import com.example.datascope.domain.ScopeType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserOverrideRule {
 
     private Long id;
@@ -9,6 +12,7 @@ public class UserOverrideRule {
     private String pageCode;
     private String roleCode;
     private ScopeType scopeType;
+    private List<String> customOrgIds = new ArrayList<String>();
     private boolean enabled;
 
     public Long getId() {
@@ -49,6 +53,14 @@ public class UserOverrideRule {
 
     public void setScopeType(ScopeType scopeType) {
         this.scopeType = scopeType;
+    }
+
+    public List<String> getCustomOrgIds() {
+        return customOrgIds;
+    }
+
+    public void setCustomOrgIds(List<String> customOrgIds) {
+        this.customOrgIds = customOrgIds;
     }
 
     public boolean isEnabled() {

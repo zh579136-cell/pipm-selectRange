@@ -16,21 +16,32 @@
         @select="goTo"
       >
         <el-menu-item index="/demo/report">演示查询页</el-menu-item>
-        <el-menu-item index="/configs/pages">页面白名单管理</el-menu-item>
-        <el-menu-item index="/configs/default-rules">默认规则管理</el-menu-item>
-        <el-menu-item index="/configs/user-rules">个人覆盖管理</el-menu-item>
+        <el-menu-item index="/configs/workbench">规则配置台</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header height="82px" style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(15,23,42,0.06);">
+      <el-header height="110px" style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(15,23,42,0.06);">
         <div>
           <div style="font-size: 24px; font-weight: 600;">{{ pageTitle }}</div>
           <div class="muted-text" style="margin-top: 4px;">切换当前演示用户，即可观察同一页面下的数据范围变化。</div>
         </div>
         <div style="display:flex; align-items:center; gap: 12px;">
-          <div v-if="state.currentUser" style="text-align:right;">
+          <div v-if="state.currentUser" style="text-align:right; max-width: 620px;">
             <div style="font-size: 14px; font-weight: 600;">{{ state.currentUser.userName }}</div>
             <div class="muted-text" style="font-size: 12px;">{{ state.currentUser.orgName }} / {{ state.currentUser.positionName }}</div>
+            <div class="muted-text" style="font-size: 12px; margin-top: 4px;">
+              机构路径ID：{{ state.currentUser.orgPathId }}
+            </div>
+            <div style="margin-top: 6px;">
+              <span
+                v-for="role in currentUserRoles"
+                :key="role.roleCode"
+                class="code-chip"
+                style="margin-bottom: 0;"
+              >
+                {{ role.roleName }} ({{ role.roleCode }})
+              </span>
+            </div>
           </div>
           <el-select
             v-model="localUserId"
@@ -70,6 +81,16 @@ export default {
   computed: {
     pageTitle() {
       return this.$route.meta.title || '数据范围演示';
+    },
+    currentUserRoles() {
+      if (!this.state.currentUser || !this.state.currentUser.roleCodes) {
+        return [];
+      }
+      const roleMap = this.state.options.roles.reduce((acc, role) => {
+        acc[role.roleCode] = role;
+        return acc;
+      }, {});
+      return this.state.currentUser.roleCodes.map(roleCode => roleMap[roleCode] || { roleCode, roleName: roleCode });
     }
   },
   watch: {

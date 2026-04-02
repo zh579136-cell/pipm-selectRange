@@ -2,22 +2,25 @@ package com.example.datascope.web.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserOverrideRuleRequest {
 
-    @NotBlank
+    @NotBlank(message = "userId不能为空")
     private String userId;
 
-    @NotBlank
+    @NotBlank(message = "pageCode不能为空")
     private String pageCode;
 
-    @NotBlank
+    @NotBlank(message = "roleCode不能为空")
     private String roleCode;
 
-    @NotBlank
     private String scopeType;
 
-    @NotNull
+    private List<String> customOrgIds = new ArrayList<String>();
+
+    @NotNull(message = "enabled不能为空")
     private Boolean enabled;
 
     public String getUserId() {
@@ -50,6 +53,14 @@ public class UserOverrideRuleRequest {
 
     public void setScopeType(String scopeType) {
         this.scopeType = scopeType;
+    }
+
+    public List<String> getCustomOrgIds() {
+        return customOrgIds;
+    }
+
+    public void setCustomOrgIds(List<String> customOrgIds) {
+        this.customOrgIds = customOrgIds;
     }
 
     public Boolean getEnabled() {

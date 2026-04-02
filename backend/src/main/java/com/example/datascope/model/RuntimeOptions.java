@@ -7,6 +7,7 @@ public class RuntimeOptions {
 
     private List<DemoUser> users = new ArrayList<DemoUser>();
     private List<RoleInfo> roles = new ArrayList<RoleInfo>();
+    private List<OrgNode> orgs = new ArrayList<OrgNode>();
     private List<PageConfig> pageConfigs = new ArrayList<PageConfig>();
     private List<String> scopeTypes = new ArrayList<String>();
     private List<String> userOrgLevels = new ArrayList<String>();
@@ -25,6 +26,14 @@ public class RuntimeOptions {
 
     public void setRoles(List<RoleInfo> roles) {
         this.roles = roles;
+    }
+
+    public List<OrgNode> getOrgs() {
+        return orgs;
+    }
+
+    public void setOrgs(List<OrgNode> orgs) {
+        this.orgs = orgs;
     }
 
     public List<PageConfig> getPageConfigs() {

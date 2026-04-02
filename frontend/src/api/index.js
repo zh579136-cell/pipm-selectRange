@@ -40,6 +40,10 @@ export function updateDefaultRule(id, payload) {
   return http.put(`/data-scope/default-rules/${id}`, payload);
 }
 
+export function deleteDefaultRule(id) {
+  return http.delete(`/data-scope/default-rules/${id}`);
+}
+
 export function fetchUserRules(params) {
   return http.get('/data-scope/user-rules', { params });
 }
@@ -50,6 +54,10 @@ export function saveUserRule(payload) {
 
 export function updateUserRule(id, payload) {
   return http.put(`/data-scope/user-rules/${id}`, payload);
+}
+
+export function deleteUserRule(id) {
+  return http.delete(`/data-scope/user-rules/${id}`);
 }
 
 export function resolvePreview(payload) {

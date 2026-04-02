@@ -1,8 +1,8 @@
 package com.example.datascope.domain;
 
 public enum ScopeType {
-    SELF_ONLY,
-    SELF_AND_DESCENDANTS,
-    PARENT_AND_DESCENDANTS,
-    ALL_ORGS
+    CURRENT_ORG_ONLY,
+    FIRST_DEPT_AND_DESCENDANTS,
+    OWNER_BANK_AND_DESCENDANTS,
+    CURRENT_ORG_AND_DESCENDANTS
 }

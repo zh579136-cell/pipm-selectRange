@@ -106,6 +106,10 @@ public class DefaultRuleRepository {
         return list.isEmpty() ? null : list.get(0);
     }
 
+    public void deleteById(Long id) {
+        jdbcTemplate.update("delete from ds_default_rule where id = ?", id);
+    }
+
     public List<DefaultRule> findByUniqueKey(String pageCode, String roleCode, UserOrgLevel userOrgLevel) {
         return jdbcTemplate.query(
             "select id, page_code, role_code, user_org_level, job_keyword, scope_type, enabled "

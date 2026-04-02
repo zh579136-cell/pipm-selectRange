@@ -10,8 +10,12 @@ public class RuleMatch {
     private Long ruleId;
     private ScopeType scopeType;
     private String matchedBy;
+    private String matchedUserOrgLevel;
+    private String resolvedScopeLabel;
+    private String resolvedScopeNote;
     private String resolvedOrgId;
     private String resolvedOrgName;
+    private java.util.List<String> resolvedOrgIds = new java.util.ArrayList<String>();
 
     public String getRoleCode() {
         return roleCode;
@@ -53,6 +57,30 @@ public class RuleMatch {
         this.matchedBy = matchedBy;
     }
 
+    public String getMatchedUserOrgLevel() {
+        return matchedUserOrgLevel;
+    }
+
+    public void setMatchedUserOrgLevel(String matchedUserOrgLevel) {
+        this.matchedUserOrgLevel = matchedUserOrgLevel;
+    }
+
+    public String getResolvedScopeLabel() {
+        return resolvedScopeLabel;
+    }
+
+    public void setResolvedScopeLabel(String resolvedScopeLabel) {
+        this.resolvedScopeLabel = resolvedScopeLabel;
+    }
+
+    public String getResolvedScopeNote() {
+        return resolvedScopeNote;
+    }
+
+    public void setResolvedScopeNote(String resolvedScopeNote) {
+        this.resolvedScopeNote = resolvedScopeNote;
+    }
+
     public String getResolvedOrgId() {
         return resolvedOrgId;
     }
@@ -67,5 +95,13 @@ public class RuleMatch {
 
     public void setResolvedOrgName(String resolvedOrgName) {
         this.resolvedOrgName = resolvedOrgName;
+    }
+
+    public java.util.List<String> getResolvedOrgIds() {
+        return resolvedOrgIds;
+    }
+
+    public void setResolvedOrgIds(java.util.List<String> resolvedOrgIds) {
+        this.resolvedOrgIds = resolvedOrgIds;
     }
 }

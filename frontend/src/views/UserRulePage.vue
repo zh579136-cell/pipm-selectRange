@@ -94,7 +94,7 @@ const createEmptyForm = () => ({
   userId: '',
   pageCode: 'DEMO_REPORT_QUERY',
   roleCode: '',
-  scopeType: 'SELF_ONLY',
+  scopeType: 'CURRENT_ORG_ONLY',
   enabled: true
 });
 

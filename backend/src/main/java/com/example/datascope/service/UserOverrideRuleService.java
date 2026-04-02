@@ -9,6 +9,7 @@ import com.example.datascope.web.request.UserOverrideRuleRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserOverrideRuleService {
@@ -41,6 +42,14 @@ public class UserOverrideRuleService {
         return repository.findById(id);
     }
 
+    public void delete(Long id) {
+        UserOverrideRule exists = repository.findById(id);
+        if (exists == null) {
+            throw new BadRequestException("未找到个人覆盖规则: " + id);
+        }
+        repository.deleteById(id);
+    }
+
     private void validateUnique(UserOverrideRule rule, Long selfId) {
         List<UserOverrideRule> rules = repository.findByUniqueKey(rule.getUserId(), rule.getPageCode(), rule.getRoleCode());
         for (UserOverrideRule item : rules) {
@@ -56,7 +65,22 @@ public class UserOverrideRuleService {
         rule.setUserId(request.getUserId().trim());
         rule.setPageCode(request.getPageCode().trim());
         rule.setRoleCode(request.getRoleCode().trim());
-        rule.setScopeType(ScopeType.valueOf(request.getScopeType().trim()));
+        List<String> customOrgIds = request.getCustomOrgIds() == null ? java.util.Collections.<String>emptyList() : request.getCustomOrgIds().stream()
+            .map(String::trim)
+            .filter(item -> !item.isEmpty())
+            .distinct()
+            .collect(Collectors.toList());
+        rule.setCustomOrgIds(customOrgIds);
+        if (!customOrgIds.isEmpty()) {
+            if (customOrgIds.size() != 1) {
+                throw new BadRequestException("个人覆盖只能选择一个机构根节点。");
+            }
+            rule.setScopeType(null);
+        } else if (request.getScopeType() != null && !request.getScopeType().trim().isEmpty()) {
+            rule.setScopeType(ScopeType.valueOf(request.getScopeType().trim()));
+        } else {
+            throw new BadRequestException("个人覆盖必须配置快捷范围或个人覆盖根节点。");
+        }
         rule.setEnabled(Boolean.TRUE.equals(request.getEnabled()));
         return rule;
     }
