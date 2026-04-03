@@ -101,9 +101,18 @@
                 <el-tag size="small" :type="row.id ? 'success' : 'info'">{{ row.id ? '已存在' : '未配置' }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="130">
+            <el-table-column label="操作" width="190">
               <template slot-scope="{ row }">
                 <el-button type="primary" size="mini" @click="saveBaseRule(row)">保存</el-button>
+                <el-button
+                  v-if="row.id"
+                  type="danger"
+                  plain
+                  size="mini"
+                  @click="deleteBaseRule(row)"
+                >
+                  清空
+                </el-button>
               </template>
             </el-table-column>
             </el-table>
@@ -118,7 +127,7 @@
                 这里单独管理特殊岗位例外。只有当用户职位名称包含关键词时，才会优先命中这里的规则。
               </div>
             </div>
-            <el-button type="success" plain @click="openKeywordDialog()">新增关键词例外</el-button>
+            <el-button type="primary" plain @click="openKeywordDialog()">新增关键词例外</el-button>
           </div>
 
           <div class="table-shell">
@@ -151,7 +160,7 @@
                 这里给少量特殊用户单独开范围。请选择一个机构根节点，系统会按这个节点整棵子树授权。
               </div>
             </div>
-            <el-button type="primary" @click="openOverrideDialog()">新增个人覆盖</el-button>
+            <el-button type="primary" plain @click="openOverrideDialog()">新增个人覆盖</el-button>
           </div>
 
           <div class="table-shell">
@@ -801,6 +810,20 @@ export default {
       }
       await this.loadDefaultRules();
       this.$message.success(`${row.levelLabel}默认规则已保存`);
+    },
+    async deleteBaseRule(row) {
+      try {
+        await this.$confirm(`确认清空“${row.levelLabel}”这条默认规则吗？清空后状态会恢复为未配置。`, '清空确认', {
+          type: 'warning'
+        });
+        await deleteDefaultRule(row.id);
+        await this.loadDefaultRules();
+        this.$message.success(`${row.levelLabel}默认规则已清空`);
+      } catch (error) {
+        if (error !== 'cancel' && error !== 'close') {
+          throw error;
+        }
+      }
     },
     openKeywordDialog(row) {
       this.keywordDialogForm = createKeywordDialogForm(this.selectedPageCode, this.selectedRole, row);
